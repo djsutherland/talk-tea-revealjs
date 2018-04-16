@@ -8,15 +8,57 @@ mixin ref(name, href)
     | ]
 
 block title
-  title Title tag for the slides
+  title Talks with reveal.js
 
 block slides
   section
-    h1 A Cool Title
-    
+    h1 Making slides with reveal.js
+    h2 (with some added niceties)
+    p Dougal, Gatsby tea
+    p 17 April 2018
+
   section
-    p This is the first slide.
-    aside.notes Hi there!
+    h2 Why?
+    ul
+      li
+        | Want to make talks that have both video and math?
+        ul
+          li PowerPoint math is a nightmare; LaTeXiT little better
+          li Beamer output is PDF: video support #[em possible], but barely
+      li
+        | Many of the advantages of Beamer:
+        ul
+          li 
+
+
+  section
+    h2 Options for slide software
+    table
+      tr
+        th
+        th Powerpoint
+        th Beamer
+        th reveal.js
+      tr
+        th Git-friendly?
+        td ✖
+        td ✔
+        td ✔
+      tr
+        th Reasonable math?
+        td ✖
+        td ✔
+        td ✔
+      tr
+        th Videos?
+        td ✔
+        td ✖
+        td ✔
+      tr
+        th Interactive stuff?
+        td ✔
+        td ✖
+        td ✔
 
   section
     h2 Slide 2
