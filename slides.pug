@@ -12,8 +12,8 @@ block title
 
 block slides
   section
-    h1 Making slides with reveal.js
-    h2 (with some added niceties)
+    h1 Making slides with #[code reveal.js]
+    h2 (and how to make it nice)
     p Dougal, Gatsby tea
     p 17 April 2018
 
@@ -25,70 +25,310 @@ block slides
         ul
           li PowerPoint math is a nightmare; LaTeXiT little better
           li Beamer output is PDF: video support #[em possible], but barely
-      li
+      li.fragment
         | Many of the advantages of Beamer:
         ul
-          li 
+          li Git-friendly
+          li
+            | Reasonable math via MathJax
+            ul.fragment: li.
+              With $q_{n,i} = \frac{1}{(7 n + i)^2}$,
+              #[a(href="https://www.scienceforums.net/topic/98960-curious-unproven-integral-formula/") probably] have
+              $$ \scriptsize
+                \sum_{n=0}^\infty
+                  q_n^1 + q_n^2 - q_n^3 + q_n^4 - q_n^5 - q_n^6
+                \stackrel{?}{=}
+                \frac{24}{7 \sqrt{7}}
+                \int_{\pi/3}^{\pi/2} \!
+                \log \left\lvert \frac{\tan t + \sqrt 7}{\tan t - \sqrt 7} \right\rvert \mathrm{d}t
+              $$
+      li.fragment Can also do #[a(href="#", onclick="cornify_add(); return false;") crazy things]&hellip;
+      script(src="https://www.cornify.com/js/cornify.js")
+      style.
+        #cornifycount {
+          display: none !important;
+        }
+      script.
+        ready(function() {
+          Reveal.addEventListener('fragmentshown', function (event) {
+            if (event.fragment.id == 'cornify-dummy') {
+              cornify_add();
+            }
+          });
+          function killCorns() {
+              var corns = document.querySelectorAll('div img[src*="cornify.com/getacorn.php"]');
+              for (var i = 0; i < corns.length; i++) {
+                 corns[i].parentNode.remove();
+              }
+          }
+          Reveal.addEventListener('slidechanged', function (event) {
+            killCorns();
+          });
+        });
 
+  section(data-menu-title="Momentum")
+    //- (data-background-iframe="https://distill.pub/2017/momentum/" data-background-interactive)
+    iframe(data-src="https://distill.pub/2017/momentum/",
+           style="height: 600px; width: 100%;")
+
+  section(data-menu-title="Surface 3d")
+    iframe(data-src="https://demo.bokehplots.com/apps/surface3d",
+           style="height: 600px; width: 100%;")
 
   section
-    h2 Options for slide software
-    table
-      tr
-        th
-        th Powerpoint
-        th Beamer
-        th reveal.js
-      tr
-        th Git-friendly?
-        td ✖
-        td ✔
-        td ✔
-      tr
-        th Reasonable math?
-        td ✖
-        td ✔
-        td ✔
-      tr
-        th Videos?
-        td ✔
-        td ✖
-        td ✔
-      tr
-        th Interactive stuff?
-        td ✔
-        td ✖
-        td ✔
+    h2 JavaScript is not the best&hellip;
+    img.stretch(data-src="img/js-good-parts.jpg")
+    p Initial implementation written in 10 days (May 1995)
 
   section
-    h2 Slide 2
+    h2 &hellip;but it's not like TeX is better
+    img(data-src="img/latex-chat-screenshot.png", style="width: 90%")
+
+  section
+    h2 Nicifying: Pug
     ul
       li
-        | Future work:
-        ul
-          li Add speech recognition &rarr; image search &rarr; display
-          ul: li.
-            Like Instant-Presentation
-            #[+ref("McCann SIGBOVIK-12", "https://github.com/ixchow/Instant-Presentation")]
-            and Last-Second-Slides
-            #[+ref("Mailhot/Hume TerribleHacks-16", "https://github.com/trishume/LastSecondSlides")]
+        | Source of talk is in HTML
+        pre(style="width: 100%"): code(data-trim, data-noescape)
+          :escape-html
+            <section>
+              <h2>Slide Title</h2>
+              <ul>
+                <li>Bullet point</li>
+                <li class="fragment">
+                  Bold claim
+                  <span class="cite">[<a href="https://www.nature.com/articles/439392d">Schmidhuber
+                  2006</a>]</span>
+                </span></li>
+              </ul>
+            </section>
+      li Comes with markdown support, but it's frustrating
+      li
+        | Better: PugJS
 
-    span.fragment $$ \int \sum e_i \otimes k(x, \cdot) $$
+        pre(style="width: 100%"): code(data-trim, data-noescape)
+          :escape-html
+            section
+              h2 Slide Title
+              ul
+                li Bullet point
+                li.fragment
+                  | Another bullet point
+                  +ref("https://www.nature.com/articles/439392d", "Schmidhuber 2006")
 
   section
-    h2 More Complicated
+    h2 Pug power
 
-    div(style="width: 60%; position: absolute; left: 0").
-      \begin{align}
-        f &= \sum_{j=1}^{12} j e^{\pi \mathbb{i}} \\
-        &\fragment[3]{= -\sum_{j=1}^{12} j} \\
-        &\fragment[5]{= - \frac{12}{2} (12 + 1)} \\
-        &\fragment[6]{= - 6 \cdot 13} \\
-        &\fragment[7]{= -78}
-      \end{align}
+    - var height = 100, width = 800;
+    svg(height=height, width=width)
+      - var l = 0, r = 1, n_pts = 100;
+      - function f(x) { return x * Math.sin(x * 60) - Math.pow(x, 3.12); }
+      - var xs = [], fs = [];
+      - for (var i = 0; i < n_pts; i++) {
+      -   x = l + i / (n_pts - 1) * r;
+      -   xs.push(x * width);
+      -   fs.push( (f(x) + 2) / 3 * height );
+      - }
+      each x, i in xs
+        if i > 0
+          line(x1=xs[i - 1], y1=fs[i - 1], x2=xs[i], y2=fs[i],
+               style="stroke:rgb(0, 200, 0); stroke-width: 2")
 
-    div(style="width: 30%; position: absolute; left: 65%")
-      p.fragment(data-fragment-index=2) Remember:
-      p.fragment(data-fragment-index=2) $e^{\pi \mathbb{i}} = -1$
-      p.fragment(data-fragment-index=4).
-        $\sum_{j=1}^b j = \frac{b (b + 1)}{2}$
+    pre: code.lang-js(data-trim, data-noescape)
+      :escape-html
+        - var height = 100, width = 800;
+        svg(height=height, width=width)
+          - var l = 0, r = 1, n_pts = 100;
+          - function f(x) { return x * Math.sin(x * 60) - Math.pow(x, 3.12); }
+          - var xs = [], fs = [];
+          - for (var i = 0; i < n_pts; i++) {
+          -   x = l + i / (n_pts - 1) * r;
+          -   xs.push(x * width);
+          -   fs.push( (f(x) + 2) / 3 * height );
+          - }
+          each x, i in xs
+            if i > 0
+              line(x1=xs[i - 1], y1=fs[i - 1], x2=xs[i], y2=fs[i],
+                   style="stroke:rgb(0, 200, 0); stroke-width: 2")
+
+  section
+    h2 Nicifying: Math
+    ul
+      li
+        | Default ships with "live" MathJax support
+        pre(style="width: 100%"): code.lang-tex(data-trim, data-noescape)
+          :escape-html
+            .(style="display: none")
+              $
+              \DeclareMathOperator*{\E}{\mathbb E}
+              \newcommand{\PP}{\mathbb P}
+              $ 
+
+            section
+              ul
+                li $\mu_\PP = \E_{X \sim \PP}[ k(X, \cdot) ]
+      .fragment
+        li Can be slow
+        li Sometimes leads to rendering mistakes during presentation
+      li.fragment
+        | Better: pre-render to SVG with #[a(href="https://github.com/mathjax/MathJax-node") MathJax-node]
+        ul: li.fragment Browser doesn't see MathJax at all
+
+
+  section
+    h2 Nicifying: Jumping around
+    ul
+      li Built-in "overview" mode sucks
+      li.fragment #[a(href="https://github.com/denehyg/reveal.js-menu"): code reveal.js-menu]
+      li.fragment
+        | Wrote little functions to skip fragments:
+
+    pre.fragment(width="100%"): code.lang-js(data-trim, data-noescape)
+      :escape-html
+        // Functions to skip to next/previous slide
+        // Based on rejected PR: https://github.com/hakimel/reveal.js/pull/371
+        function nextSlide() {
+            var idx = Reveal.getIndices();
+            if (Reveal.availableRoutes().down) {
+                Reveal.slide(idx.h, idx.v + 1);
+            } else if (Reveal.availableRoutes().right) {
+                Reveal.slide(idx.h + 1);
+            }
+            navigateLastFragment();
+        }
+        function prevSlide() {
+            var idx = Reveal.getIndices();
+            if (Reveal.availableRoutes().up) {
+                Reveal.slide(idx.h, idx.v - 1, 99999);
+                navigateLastFragment();
+            } else if (Reveal.availableRoutes().left) {
+                Reveal.slide(idx.h - 1, 99999);
+                navigateLastFragment();
+            }
+        }
+        function navigateLastFragment() {
+            var fragments = Reveal.getCurrentSlide().querySelectorAll('.fragment');
+            var maxIdx = -1;
+            for (var i = 0; i < fragments.length; i++) {
+                var f = parseInt(fragments[i].dataset.fragmentIndex || 0, 10);
+                if (f > maxIdx) {
+                    maxIdx = f;
+                }
+            }
+            Reveal.navigateFragment(maxIdx);
+        }
+
+        // Reveal.configure argument:
+          keyboard: {
+              40: 'next',  // down arrow: act like spacebar
+              38: 'prev',  // up arrow: opposite of down arrow
+              33: prevSlide, // page up: previous slide
+              34: nextSlide  // page down: next slide
+          },
+
+
+  section
+    h2 Nicifying: Build layout
+    ul
+      li #[code reveal.js]'s #[code README] says to fork the library for each talk
+      .fragment
+        li Much, much better: use #[code npm] to install it and dependencies
+        li Repo only contains talk and reference to package versions
+
+    pre.fragment: code.lang-json(data-trim, data-noescape)
+      :escape-html
+        "dependencies": {
+          "reveal.js": "github:dougalsutherland/reveal.js#fragment-in-url",
+          "reveal.js-menu": "^1.1.1"
+        },
+        "devDependencies": {
+          "chokidar": "^2.0.3",
+          "express": "^4.16.3",
+          "jstransformer-escape-html": "^1.1.0",
+          "livereload": "^0.7.0",
+          "locks": "^0.2.2",
+          "lodash.template-cli": "^0.5.0",
+          "mathjax-node-page": "^2.0.0",
+          "minimist": "^1.2.0",
+          "node-sass": "^4.8.3",
+          "node-watch": "^0.5.8",
+          "pug": "^2.0.3",
+          "pug-plugin-debug-line": "github:pugjs/pug-plugin-debug-line",
+          "serve-static": "^1.13.2",
+          "split2": "^2.2.0",
+          "ws": "^5.1.1"
+        }
+
+  section
+    h2 Nicifying: Build system
+    ul
+      li Default setup uses #[code grunt]
+      li
+        | Re-implementation of #[code make] that's way harder to use
+        ul: li Especially if you want to re-build figures, etc&hellip;
+      li Nobody uses #[code grunt] anymore; now it's #[code gulp], #[code webpack], &hellip;
+      li.fragment Instead: use a #[code Makefile]; it's worked since 1976
+      li.fragment Wrote a little #[code bin/compile] wrapper to do Pug+MathJax
+
+    pre.fragment: code.lang-makefile(data-trim, data-noescape)
+      :escape-html
+        BIN := ${CURDIR}/node_modules/.bin
+        all: index.html css/djs.css
+
+        css/%.css: scss/%.scss
+          ${BIN}/node-sass $< > $@
+
+        index.html: slides.pug layout.pug js/mj-plugin/fragments.js
+          ${CURDIR}/bin/compile --livereload=${USE_LIVERELOAD} --sync=${USE_SYNC}
+
+  section
+    h2 Nicifying: Live-reload and sync with #[code bin/serve]
+    ul
+      li Script watches for file edits and re-compiles
+      li Runs #[a(href="https://github.com/napcs/node-livereload") node-livereload] server, tells browser to reload
+      li.fragment
+        | Runs websocket server for browser, editor to communicate
+        ul
+          li.fragment
+            | Shift-control click in browser opens editor at that point
+            ul
+              li #[a(href="https://git'awmub.com/pugjs/pug-plugin-debug-line"): code pug-plugin-debug-line] adds line, column to HTML
+              li #[code bin/serve] just runs e.g. #[code subl slides.pug:237:25]
+          li.fragment
+            | Editor plugin to slide browser to right point
+            ul
+              li.fragment One line in Vim
+              li.fragment Takes a Python plugin in Sublime
+
+  section
+    h2 Drawbacks
+    ul
+      li Learning a new system
+      li Complicated/interactive stuff is a lot of work
+      li Doesn't show PDFs well; remake figures in SVG
+      li ~150MB of deps per repo (in development; deploy is 5MB)
+      li
+        | Nontrivial layouts can be a pain
+        ul
+          li
+            | Adaptive sizing makes #[code position: absolute] weird
+    pre: code.lang-js(data-trim, data-noescape)
+      :escape-html
+        - var width = 400; var height = Math.round(800 * 4/15);
+        - var base = 'display: block; position: absolute; top: 425px; left: 50%; vertical-align: middle; ';
+        - var pos_l = base + `margin-left: -${width + 10}px; width: ${width}px;`
+        - var pos_r = base + `margin-left: 10px; width: ${width}px;`
+        img.fragment.fade-out(       data-fragment-index="1", data-src="img/example/rep-both.svg",   style=pos_l)
+        img.fragment.current-visible(data-fragment-index="1", data-src="img/example/rep-d1-nys.svg", style=pos_l)
+        img.fragment(                data-fragment-index="2", data-src="img/example/rep-lite.svg",   style=pos_l)
+        img(                                  data-src="img/subspace-fits/samps.svg",    style=pos_r)
+        img(                                  data-src="img/subspace-fits/fit-full.svg", style=pos_r)
+        img.fragment(data-fragment-index="1", data-src="img/subspace-fits/basis.svg",    style=pos_r)
+        img.fragment(data-fragment-index="1", data-src="img/subspace-fits/fit-nys.svg",  style=pos_r)
+        img.fragment(data-fragment-index="2", data-src="img/subspace-fits/fit-lite.svg", style=pos_r)
+
+  section
+    h2 Should you use it?
+    ul
+      li Maybe not
+      li.fragment If you do: #[a(href="https://github.com/dougalsutherland/html-talk"): code github.com/dougalsutherland/html-talk]

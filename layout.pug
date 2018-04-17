@@ -10,7 +10,7 @@ html(lang="en")
     link(rel="stylesheet", href="css/djs.css")
 
     //- <!-- Used for code syntax highlighting -->
-    //- link(rel="stylesheet", href="node_modules/reveal.js/lib/css/zenburn.css")
+    link(rel="stylesheet", href="node_modules/reveal.js/lib/css/zenburn.css")
 
     script.
       var link = document.createElement('link');
@@ -20,6 +20,16 @@ html(lang="en")
                    'node_modules/reveal.js/css/print/pdf.css' :
                    'node_modules/reveal.js/css/print/paper.css');
       document.getElementsByTagName('head')[0].appendChild(link);
+
+    script.
+      function ready(fn) {
+          if (document.attachEvent ? document.readyState === "complete"
+                                   : document.readyState !== "loading") {
+              fn();
+          } else {
+              document.addEventListener('DOMContentLoaded', fn);
+          }
+      }
 
   body
     .reveal
@@ -102,7 +112,7 @@ html(lang="en")
               { src: 'node_modules/reveal.js/plugin/notes/notes.js', async: true },
               // If you're using syntax highlighting, you might need to
               // uncomment the zenburn CSS line above.
-              // { src: 'node_modules/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: 'node_modules/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
               { src: 'node_modules/reveal.js-menu/menu.js' },
 
               // Handles automatic video playing
