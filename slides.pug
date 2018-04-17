@@ -238,7 +238,7 @@ block slides
     pre.fragment: code.lang-json(data-trim, data-noescape)
       :escape-html
         "dependencies": {
-          "reveal.js": "github:dougalsutherland/reveal.js#fragment-in-url",
+          "reveal.js": "github:hakimel/reveal.js#f1133f0e",
           "reveal.js-menu": "^1.1.1"
         },
         "devDependencies": {
@@ -251,7 +251,6 @@ block slides
           "mathjax-node-page": "^2.0.0",
           "minimist": "^1.2.0",
           "node-sass": "^4.8.3",
-          "node-watch": "^0.5.8",
           "pug": "^2.0.3",
           "pug-plugin-debug-line": "github:pugjs/pug-plugin-debug-line",
           "serve-static": "^1.13.2",
@@ -297,8 +296,14 @@ block slides
           li.fragment
             | Editor plugin to slide browser to right point
             ul
-              li.fragment One line in Vim
               li.fragment Takes a Python plugin in Sublime
+              li.fragment
+                | One line in Vim
+    pre.fragment: code.lang-vim(data-trim, data-noescape)
+      :escape-html
+        autocmd BufRead,BufNewFile slides.pug nnoremap <LocalLeader>j :execute "!node " \
+          . expand("%:p:h") . "/bin/slide-to -f " . shellescape(expand("%")) . \
+          " -l " . line(".") . " -c " . col(".")<cr><cr>
 
   section
     h2 Drawbacks
